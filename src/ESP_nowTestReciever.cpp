@@ -1,0 +1,39 @@
+#include <Arduino.h>
+#include <esp_now.h>
+#include <WiFi.h>
+
+int ledPin = 23;
+
+typedef struct struct_message{
+    bool microphoneValue;
+} struct_message;
+
+struct_message receivedData;
+
+void onDataRecieve(const uint8_t * mac, const uint8_t *incomingData, int len) {
+    memcpy(&receivedData, incomingData, sizeof(receivedData));
+
+    if (receivedData.microphoneValue) {
+        digitalWrite(ledPin,HIGH);
+    }
+    else {
+        digitalWrite(ledPin,LOW);
+    }
+}
+
+void setup() {
+    Serial.begin(115200);
+    pinMode(ledPin,OUTPUT);
+    digitalWrite(ledPin,LOW);
+    WiFi.mode(WIFI_STA);
+    if (esp_now_init() != ESP_OK) {
+        Serial.println("Error initializing ESP-NOW");
+        return;
+    }
+
+    esp_now_register_recv_cb(onDataRecieve);
+}
+
+void loop() {
+}
+
