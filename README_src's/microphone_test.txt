@@ -1,0 +1,6 @@
+This ws my very first time creating a code that involves Microphones, 
+so I want to take the time to start learnng about how to incorperate 
+micrphones from the ground up. 
+Through this simple code, I am able to make an led blink based on if the
+microphone module is able to pick up any sound. A cool first-time
+microphone incoorperating project I thought was worth trying.
