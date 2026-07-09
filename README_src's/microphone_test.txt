@@ -1,3 +1,5 @@
+First part to developing my way to making the Comms Transporter!
+
 This ws my very first time creating a code that involves Microphones, 
 so I want to take the time to start learnng about how to incorperate 
 micrphones from the ground up. 

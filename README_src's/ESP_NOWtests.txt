@@ -1,0 +1,38 @@
+Second part to developing my way to making the Comms Transporter!
+
+The src's that are named "ESP_now...", are supoosed to show how I plan
+on making multiple devices be able to communicate with each other: ESP_now!
+Essentially, ESP_now is a function for ESP32's to be able to communicate with one another
+simpler and easier due to its low latency and low power consumption compared to WIFI.
+Since my project revolves around these devices being dormant inside a home, ESP_now is
+more than capable for accomplishing this. 
+
+
+Most of the code in its entierity is just the setup for ESP32, so there wasnt much "real" coding that
+I had to do. It was simply just the very first code, "microphone_test", accept one ESP32 has the microphone (input), 
+and the other microphone has the led (output). 
+ 
+
+The only difference is that unlike the inital microphone test, with this one, even though 
+i made the code for how to interpret the input of the microphone and in accordance, turn the led on,
+it wouldnt work as well as I thought. It would only turn the led on a number of times even though 
+I was talking through the microphone. I tried changing delays and such but it didnt work. 
+
+
+In the end, I wasnt able to get it to work no matter what I did, so I did have to use a bit of outside
+help on the matter. I was able to find out that one problem could even just be the micropghone itself.
+I have the generic red microphone module (KY-038), and it isnt exactly the best at interpretting audio full on,
+so I know i wouldnt be able to use this for my project, since my project requires clear cut audio to be transmitted
+from one room to another. 
+
+
+A little hack I guess that solved this was by using the milis() command. This command 
+eseentially calls the time (in milliseconds) that the program has been running, and takes the time of the last 
+detetced audio (so this can be even just a little blurt), and while the difference in time ebtween the two is 500ms, 
+keep the led on. This solved the program becauae both these numbers are changing constantly. If i ever hum at the 
+microphone, not only is the time the program is running changing, but also the last detected hum, along with that 500ms leadway.
+This solved the problem, and my code was abel to work!
+
+I will say, I wish that for all the devices can act as a trasnmitter and reciever. ESP_NOW was the first thing I thought of,
+and ill stick to it if its possible. This can be subject to change, but im not removing this progress even if i dont end
+up using ESP_NOW.
