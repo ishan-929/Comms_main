@@ -14,8 +14,10 @@ struct_message myData;
 
 esp_now_peer_info_t peerInfo;
 
+unsigned long lastSoundTime = 0;
+
 void setup() {
-    Serial.begin(152000);
+    Serial.begin(115200);
     pinMode(microphonePin,INPUT);
     WiFi.mode(WIFI_STA);
 
@@ -35,8 +37,16 @@ void setup() {
 }
 
 void loop() {
-    myData.microphoneValue = digitalRead(microphonePin);
-    esp_now_send(broadcastAddress, (uint8_t *) &myData, sizeof(myData));
-    delay(55);
+    if(digitalRead(microphonePin)){
+        lastSoundTime = millis();
+    }
+    if(millis() - lastSoundTime < 500){
+        myData.microphoneValue = true;
+    }
+    else{
+        myData.microphoneValue = false;
+    }
+    esp_now_send(broadcastAddress, (uint8_t *)&myData, sizeof(myData));
+    delay(20);
 }
 
