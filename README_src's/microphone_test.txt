@@ -6,3 +6,6 @@ micrphones from the ground up.
 Through this simple code, I am able to make an led blink based on if the
 microphone module is able to pick up any sound. A cool first-time
 microphone incoorperating project I thought was worth trying.
+Note that this is not the microphone I will be using. This microphone dosent 
+actually capture audio data, it just detects change in sound levels. 
+The microphone I plan to use is the INMP441, and I will be incorrperating it very soon.

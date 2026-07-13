@@ -36,3 +36,8 @@ This solved the problem, and my code was abel to work!
 I will say, I wish that for all the devices can act as a trasnmitter and reciever. ESP_NOW was the first thing I thought of,
 and ill stick to it if its possible. This can be subject to change, but im not removing this progress even if i dont end
 up using ESP_NOW.
+
+Also, the microphone sensor that I used didnt necessarily act as a microphone here. I didnt record my voice and do anything with that. 
+This just simply detected any kind of sound, and blinked an LED. To get inot real microphone stuff, I need an INMP441, the ideal module
+for this that is able to input sound, and I got it relatively cheap hehe. It is not here yet (July 9, 2026 rn), so in the mean while,
+ill learn about it, how it works, and how to code with it. 
