@@ -2,7 +2,7 @@
 #include <esp_now.h>
 #include <WiFi.h>
 
-uint8_t broadcastAddress[] = {0xF4, 0x2D, 0xC9, 0x6B, 0x07, 0x68};
+uint8_t broadcastAddress[] = {};
 
 int microphonePin = 5;
 
