@@ -1,0 +1,26 @@
+#include <Arduino.h>
+#include <Wire.h>
+#include <U8g2lib.h>
+#include <SPI.h>
+
+U8G2_SSD1306_128X64_NONAME_F_HW_I2C u8g2(U8G2_R0, U8X8_PIN_NONE);
+int xChange = 4;
+
+void setup() {
+    u8g2.begin();
+}
+
+void loop() {
+    for(int i = 0; i < 15;i++){
+    u8g2.clearBuffer();
+    u8g2.setFont(u8g2_font_m_c_kids_nes_credits_font_tr);
+    u8g2.drawStr(39,33,"TCT");
+    u8g2.drawFrame(29,41,68,11);
+    u8g2.drawBox(31,43,xChange,7);
+    xChange +=4;
+    u8g2.sendBuffer();
+    delay(350);
+    u8g2.sendBuffer();
+    delay(2000);
+    }
+}
