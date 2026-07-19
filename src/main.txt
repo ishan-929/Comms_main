@@ -114,6 +114,7 @@ Screen currentScreen = home;
 Screen HomeScreenMap[5] {RoomOne, RoomTwo, RoomThree, RoomFour, RoomFive};
 
 
+
 void drawBooting() {
     for (int i = 0; i < 15; i++) {
         u8g2.clearBuffer();
@@ -212,6 +213,7 @@ void drawRoomFive() {
 
 void setup() {
     u8g2.begin();
+    Wire.setClock(400000);
     pinMode(enClk, INPUT_PULLUP);
     pinMode(enDt,  INPUT_PULLUP);
     pinMode(enSw, INPUT_PULLUP);
@@ -228,51 +230,45 @@ void loop() {
     enClkCurrent = digitalRead(enClk);
     enDtCurrent = digitalRead(enDt);
     enSwCurrent = digitalRead(enSw);
+
     if (enClkCurrent == LOW && enClkLast == HIGH) {
-        bool changed = false;
+
         if (enDtCurrent == LOW) {
             item--;
-            changed = true;
             if (item < 0) {
                 item = num_icons-1;
             }
         }
         else {
             item++;
-            changed = true;
             if (item >= num_icons) {
                 item = 0;
             }
         }
-        if (changed == true) {
-            drawHome();
-        }
-        
+
     }
-    if (enSwCurrent != enSwLast) {
-        if (currentScreen == home) {
-            currentScreen = HomeScreenMap[item];
-        }
-    }
+
     enClkLast = enClkCurrent;
     enDtLast = enDtCurrent;
     enSwLast = enSwCurrent;
-    if (currentScreen == home) {
-        drawHome();
-    }
-    if (currentScreen == RoomOne) {
-        drawRoomOne();
-    }
-    if (currentScreen == RoomTwo) {
-        drawRoomTwo();
-    }
-    if (currentScreen == RoomThree) {
-        drawRoomThree();
-    }
-    if (currentScreen == RoomFour) {
-        drawRoomFour();
-    }
-    if (currentScreen == RoomFive) {
-        drawRoomFive();
-    }
+
+        if (currentScreen == home) {
+            drawHome();
+        }
+        if (currentScreen == RoomOne) {
+            drawRoomOne();
+        }
+        if (currentScreen == RoomTwo) {
+            drawRoomTwo();
+        }
+        if (currentScreen == RoomThree) {
+            drawRoomThree();
+        }
+        if (currentScreen == RoomFour) {
+            drawRoomFour();
+        }
+        if (currentScreen == RoomFive) {
+            drawRoomFive();
+        }
+
 }
