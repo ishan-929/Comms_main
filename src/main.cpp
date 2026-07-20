@@ -7,6 +7,10 @@ int xChange = 8;
 const int enClk = 25;
 const int enDt = 26;
 const int enSw = 27;
+const int redLed = 35;
+const int greenLed = 12;
+int choice = 0;
+int lastChoice = -1;
 int enClkCurrent;
 int enClkLast;
 int enDtCurrent;
@@ -14,6 +18,7 @@ int enDtLast;
 int enSwLast;
 int enSwCurrent;
 int item = 0;
+int lastItem = -1;
 int prev_item;
 int next_item;
 
@@ -110,9 +115,9 @@ enum Screen {
 };
 
 Screen currentScreen = home;
+Screen lastScreen = (Screen)-1;
 
 Screen HomeScreenMap[5] {RoomOne, RoomTwo, RoomThree, RoomFour, RoomFive};
-
 
 
 void drawBooting() {
@@ -165,51 +170,34 @@ void drawHome() {
 
 }
 
-void drawRoomOne() {
-    u8g2.clearBuffer();
-    u8g2.drawBitmap(4,2,2,16,home_icons[item]);
-    u8g2.drawXBMP(120,0,8,64, epd_bitmap__scrollbar);
-    u8g2.setFont(u8g2_font_7x14B_tr);
-    u8g2.drawStr(24,14, home_pages[item]);
-    u8g2.sendBuffer();
-}
+void drawRoom() {
 
-void drawRoomTwo() {
-    u8g2.clearBuffer();
-    u8g2.setFont(u8g2_font_7x14B_tr);
-    u8g2.drawStr(24,14,home_pages[item]);
-    u8g2.drawBitmap(4,2,2,16,home_icons[item]);
-    u8g2.drawXBMP(120,0,8,64, epd_bitmap__scrollbar);
-    u8g2.sendBuffer();
-}
-
-void drawRoomThree() {
-    u8g2.clearBuffer();
-    u8g2.setFont(u8g2_font_7x14B_tr);
-    u8g2.drawStr(24,14,home_pages[item]);
-    u8g2.drawXBMP(120,0,8,64,epd_bitmap__scrollbar);
-    u8g2.drawBitmap(4,2,2,16,home_icons[item]);
-    u8g2.sendBuffer();
-}
-
-void drawRoomFour() {
-    u8g2.clearBuffer();
-    u8g2.setFont(u8g2_font_7x14B_tr);
-    u8g2.drawStr(24,14,home_pages[item]);
-    u8g2.drawXBMP(120,0,8,64,epd_bitmap__scrollbar);
-    u8g2.drawBitmap(4,2,2,16,home_icons[item]);
-    u8g2.sendBuffer();
-}
-
-void drawRoomFive() {
     u8g2.clearBuffer();
     u8g2.setFont(u8g2_font_7x14B_tr);
     u8g2.drawXBMP(120,0,8,64,epd_bitmap__scrollbar);
     u8g2.drawBitmap(4,2,2,16,home_icons[item]);
     u8g2.drawStr(24,14,home_pages[item]);
-    u8g2.clearBuffer();
-}
+    u8g2.drawLine(22,16,87,16);
 
+    if (choice == 0) {
+        u8g2.drawTriangle(7,24,7,32,15,28);
+        u8g2.setFont(u8g2_font_7x14B_tr);
+        u8g2.drawStr(19,33,"Record?");
+        u8g2.setFont(u8g2_font_7x14_tf);
+        u8g2.drawStr(7,50,"Back");
+        u8g2.sendBuffer();
+    }
+    if (choice == 1) {
+        u8g2.drawTriangle(7,40,7,48,15,44);
+        u8g2.setFont(u8g2_font_7x14_tr);
+        u8g2.drawStr(7,33,"Record?");
+        u8g2.setFont(u8g2_font_7x14B_tf);
+        u8g2.drawStr(19,50,"Back");
+        u8g2.sendBuffer();
+
+    }
+
+}
 
 void setup() {
     u8g2.begin();
@@ -217,7 +205,9 @@ void setup() {
     pinMode(enClk, INPUT_PULLUP);
     pinMode(enDt,  INPUT_PULLUP);
     pinMode(enSw, INPUT_PULLUP);
-    //for (int i = 0; i < 3; i++) {
+    pinMode(greenLed, OUTPUT);
+    pinMode(redLed,OUTPUT);
+    //for (int i = 0; i < 2; i++) {
         //drawBooting();
     //}
     delay(700);
@@ -231,44 +221,69 @@ void loop() {
     enDtCurrent = digitalRead(enDt);
     enSwCurrent = digitalRead(enSw);
 
-    if (enClkCurrent == LOW && enClkLast == HIGH) {
-
-        if (enDtCurrent == LOW) {
-            item--;
-            if (item < 0) {
-                item = num_icons-1;
+    if (currentScreen == home) {
+        if (enClkCurrent == LOW && enClkLast == HIGH) {
+            if (enDtCurrent == LOW) {
+                item--;
+                if (item < 0) {
+                    item = num_icons-1;
+                }
+            }
+            else {
+                item++;
+                if (item >= num_icons) {
+                    item = 0;
+                }
             }
         }
-        else {
-            item++;
-            if (item >= num_icons) {
-                item = 0;
+
+        if (enSwCurrent == LOW && enSwLast != LOW) {
+            currentScreen = HomeScreenMap[item];
+            choice = 0;
+            enSwLast = enSwCurrent;
+            delay(180);
+            return;
+        }
+    }
+
+    if (currentScreen != home) {
+        if (enClkCurrent == LOW && enClkLast != LOW) {
+            if (enDtCurrent == LOW) {
+                choice++;
+                if (choice > 1) {
+                    choice = 1;
+                }
+            }
+            else {
+                choice--;
+                if (choice < 0) {
+                    choice = 0;
+                }
             }
         }
-
+        if (enSwCurrent == LOW && enSwLast!= LOW) {
+            if (choice == 1) {
+                currentScreen = home;
+            }
+            delay(180);
+        }
     }
 
     enClkLast = enClkCurrent;
     enDtLast = enDtCurrent;
     enSwLast = enSwCurrent;
 
+    if (item != lastItem || currentScreen != lastScreen || choice != lastChoice) {
+        lastItem = item;
+        lastScreen = currentScreen;
+        lastChoice = choice;
+
         if (currentScreen == home) {
             drawHome();
         }
-        if (currentScreen == RoomOne) {
-            drawRoomOne();
+        else {
+            drawRoom();
         }
-        if (currentScreen == RoomTwo) {
-            drawRoomTwo();
-        }
-        if (currentScreen == RoomThree) {
-            drawRoomThree();
-        }
-        if (currentScreen == RoomFour) {
-            drawRoomFour();
-        }
-        if (currentScreen == RoomFive) {
-            drawRoomFive();
-        }
+    }
 
 }
