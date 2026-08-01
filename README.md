@@ -48,7 +48,7 @@
 - **Soldering:** [You might have to solder INMP441 pins and ESP32 pins onto itself, so thats the first step.]
   **Icon Creation** [I created the Icons on Photopea, then uploaded them onto image2cpp, which is linked to this text](https://javl.github.io/image2cpp/)
 - **Wiring:** [You can check out the pinout here:] <img width="1539" height="1108" alt="Screenshot 2026-07-31 220816" src="https://github.com/user-attachments/assets/a7e429ee-bb55-4d8d-b8e4-c4b1f71a8897" />
-- **Video** [You can check out my video on my system here:] 
+- **Video** [You can check out my video on my system here:] https://drive.google.com/file/d/1JQtBzxquqxLIkbg-6mlFQjLLs1y0eG3C
 
 
   ## AI-Decleration
