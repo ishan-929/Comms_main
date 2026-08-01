@@ -10,8 +10,8 @@ int xChange = 8;
 const int enClk = 25;
 const int enDt = 26;
 const int enSw = 27;
-const int redLed = 35;
-const int greenLed = 34;
+const int redLed = 32;
+const int greenLed = 33;
 const int sd_cs = 15;
 const int sd_sck = 14;
 const int sd_mosi = 13;
@@ -23,21 +23,23 @@ int num_file = 0;
 int choice = 0;
 int lastChoice = -1;
 int selectt = 0;
-int lastselectt = -1;
+int lastSelectt = -1;
 int enClkCurrent;
-int enClkLast;
+int enClkLast = HIGH;
 int enDtCurrent;
-int enDtLast;
-int enSwLast;
+int enDtLast = HIGH;
+int enSwLast = HIGH;
 int enSwCurrent;
 int item = 0;
 int lastItem = -1;
 int prev_item;
 int next_item;
 bool isRecording = false;
+bool lastIsRecording = false;
 
 #define I2S_PORT I2S_NUM_0
 SPIClass customSPI(VSPI);
+int32_t audioBuffer[64];
 File file;
 
 U8G2_SSD1306_128X64_NONAME_F_HW_I2C u8g2(U8G2_R0, U8X8_PIN_NONE);
@@ -188,33 +190,89 @@ void drawRoom() {
 }
 void drawRecordingScreen() {
     u8g2.clearBuffer();
-    u8g2.drawTriangle(7,59,15,55,15,63);
-    u8g2.drawTriangle(121,59,113,55,113,63);
+
+    if (isRecording == false) {
+        u8g2.drawTriangle(7,58,15,54,15,62);
+        u8g2.drawTriangle(121,58,113,54,113,62);
+    }
     u8g2.setFont(u8g2_font_courB18_tr);
-    u8g2.drawStr(11,25,"Record?");
+
+    if (isRecording == false) {
+        u8g2.drawStr(31,32,"Play?");
+    }
+    else {
+        u8g2.drawStr(31,32,"Talk!");
+        u8g2.setFont(u8g2_font_6x10_tf);
+        u8g2.drawStr(49,58,"Stop?");
+        u8g2.drawFrame(40,60,48,16);
+
+    }
+    if (selectt == 0 && isRecording == false) {
+        u8g2.drawFrame(5,53,12,11);
+        u8g2.setFont(u8g2_font_5x7_tr);
+        u8g2.drawStr(19, 62, "Back");
+    }
+    if (selectt == 2 && isRecording == false) {
+        u8g2.drawFrame(111,53,12,11);
+        u8g2.setFont(u8g2_font_5x7_tr);
+        u8g2.drawStr(90, 62, "Send");
+    }
+    if (selectt == 1 && isRecording == false) {
+        u8g2.drawFrame(26,12,82,28);
+    }
     u8g2.sendBuffer();
 }
 
-void startRecording() {
-    u8g2.clearBuffer();
-    startI2S();
-    u8g2.setFont(u8g2_font_courB18_tr);
-    u8g2.drawStr(8,21,"Recording!");//
-}
 
 void updateLEDs() {
-    if (currentScreen != recordingScreen) {
-        digitalWrite(greenLed, LOW);
-        digitalWrite(redLed, HIGH);
+    if (currentScreen == recordingScreen && isRecording == true) {
+        digitalWrite(greenLed, HIGH);
+        digitalWrite(redLed,LOW);
     }
     else {
         digitalWrite(greenLed, LOW);
-        digitalWrite(redLed,HIGH);//
+        digitalWrite(redLed, HIGH);
     }
-
 }
 
 void startI2S() {
+    char buf[12];
+    itoa(num_file,buf,10);
+    std::string final = "/test" + std::string(buf) + ".txt";
+    SD.remove("/test.txt");
+    file = SD.open(final.c_str(), FILE_WRITE);
+    if (!file) {
+        Serial.println("No file fam");
+    }
+}
+
+void endI2S() {
+    num_file++;
+    file.flush();
+    file.close();
+}
+
+void startRecording() {
+    size_t bytes = 0;
+    i2s_read(I2S_PORT, &audioBuffer, 256, &bytes, 0);
+    if (bytes > 0) {
+        file.write((uint8_t*)audioBuffer, bytes);
+    }
+}
+
+
+void setup() {
+    u8g2.begin();
+    Wire.setClock(400000);
+    pinMode(enClk, INPUT_PULLUP);
+    pinMode(enDt,  INPUT_PULLUP);
+    pinMode(enSw, INPUT_PULLUP);
+    pinMode(greenLed, OUTPUT);
+    pinMode(redLed,OUTPUT);
+    customSPI.begin(sd_sck, sd_miso, sd_mosi, sd_cs);
+    if (!SD.begin(sd_cs, customSPI)) {
+        Serial.println("This didnt begin yo");
+    };
     i2s_config_t config {
         .mode = (i2s_mode_t)(I2S_MODE_MASTER | I2S_MODE_RX),
         .sample_rate = 16000,
@@ -232,30 +290,8 @@ void startI2S() {
         .data_in_num = sd
     };
     i2s_driver_install(I2S_PORT, &config, 0, NULL);
+    i2s_zero_dma_buffer(I2S_PORT);
     i2s_set_pin(I2S_PORT, &pins);
-    customSPI.begin(sd_sck, sd_miso, sd_mosi, sd_cs);
-    SD.begin(sd_cs, customSPI);
-    char buf[12];
-    itoa(num_file,buf,10);
-    std::string final = "/test" + std::string(buf) + ".txt";
-    file = SD.open(final.c_str(), FILE_WRITE);
-}
-
-void endI2S() {
-    i2s_driver_uninstall(I2S_PORT);
-    num_file++;
-}
-
-
-
-void setup() {
-    u8g2.begin();
-    Wire.setClock(400000);
-    pinMode(enClk, INPUT_PULLUP);
-    pinMode(enDt,  INPUT_PULLUP);
-    pinMode(enSw, INPUT_PULLUP);
-    pinMode(greenLed, OUTPUT);
-    pinMode(redLed,OUTPUT);
     //for (int i = 0; i < 2; i++) {
         //drawBooting();
     //}
@@ -269,7 +305,11 @@ void loop() {
     enClkCurrent = digitalRead(enClk);
     enDtCurrent = digitalRead(enDt);
     enSwCurrent = digitalRead(enSw);
+    updateLEDs();
 
+    if (isRecording) {
+        startRecording();
+    }
     if (currentScreen == home) {
         if (enClkCurrent == LOW && enClkLast == HIGH) {
             if (enDtCurrent == LOW) {
@@ -289,8 +329,10 @@ void loop() {
         if (enSwCurrent == LOW && enSwLast != LOW) {
             currentScreen = HomeScreenMap[item];
             choice = 0;
+            enClkLast = enClkCurrent;
+            enDtLast = enDtCurrent;
             enSwLast = enSwCurrent;
-            delay(180);
+            delay(200);
             return;
         }
 
@@ -318,12 +360,16 @@ void loop() {
             else {
                 currentScreen = recordingScreen;
             }
-            delay(180);
+            enClkLast = enClkCurrent;
+            enDtLast = enDtCurrent;
+            enSwLast = enSwCurrent;
+            delay(200);
+            return;
         }
     }
 
-    if (currentScreen != home && currentScreen == recordingScreen){
-        if (enClkCurrent == LOW && enClkLast != LOW) {
+    if (currentScreen == recordingScreen){
+        if (enClkCurrent == LOW && enClkLast != LOW && isRecording == false) {
             if (enDtCurrent == LOW) {
                 selectt++;
                 if (selectt > 2) {
@@ -339,34 +385,35 @@ void loop() {
         }
 
         if (enSwCurrent == LOW && enSwLast!= LOW) {
-            if (selectt == 0) {
+            if (selectt == 0 && isRecording == false) {
                 currentScreen = HomeScreenMap[item];
             }
-            else if (selectt == 1) {
-                isRecording = !isRecording;
-                if (isRecording) {
-                    currentScreen = fullRecording;
-                }
-                else {
-                    currentScreen = recordingScreen;
-                }
+            else if (selectt == 1 && isRecording == false) {
+                isRecording = true;
+                selectt = 1;
+                startI2S();
+            }else if (isRecording == true){
+                isRecording = false;
+                endI2S();
             }
-            else if (selectt == 2) {
-                
-
-            }
+            enClkLast = enClkCurrent;
+            enDtLast = enDtCurrent;
+            enSwLast = enSwCurrent;
+            delay(200);
+            return;
         }
-        
     }
 
     enClkLast = enClkCurrent;
     enDtLast = enDtCurrent;
     enSwLast = enSwCurrent;
 
-    if (item != lastItem || currentScreen != lastScreen || choice != lastChoice) {
+    if (item != lastItem || currentScreen != lastScreen || choice != lastChoice || selectt != lastSelectt || isRecording != lastIsRecording) {
         lastItem = item;
         lastScreen = currentScreen;
         lastChoice = choice;
+        lastSelectt = selectt;
+        lastIsRecording = isRecording;
 
         if (currentScreen == home) {
             drawHome();
@@ -381,5 +428,4 @@ void loop() {
             updateLEDs();
         }
     }
-
 }

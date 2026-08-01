@@ -127,5 +127,34 @@ I recorded a Lapse video that showed me creating the Loading Screen, but not the
 but basically its the same as the loading Screen Lapse video, It was all doen in photo pew where the icons were all drawn 16x16 pixels, 
 a nice scrollbar all the way to the left of the screen that takes up the whole y amount, it was pretty cool. 
 
+**Total time spent: 4hr**
+
+# July 20th : OLED SCreen Home Design Making: Room section!
+
+Drng this part of the project, I tried to near finalize the home screen as well as going in and out of the room screens,
+deleted repetitivness such as making different screens for every room (better for future if someone wants to add any amount of rooms),
+and a smooth ui overall. Hardcoded 5 rooms wil be for now, but creating a room as well as its name will be added after the general project works
+fine. 
+
+**Total time spent : 3hr**
+
+# July 29th : Adding INMP441 and S card reader logic into the code!
+
+In this part of the code, I finally srated to add things that I need for my project, such as the INMP441 logic and the SD
+card reader logic. Stil dosent work fully as of yet, but fiixng it soon. Alot of trial and error in terms of trying to get it to work
+though. Having to do a startI2S and end I2S makes ita little annyoing, and I need to understand how it works better.
+
+**Total time spent: 3hr**
+
+# July 31th : Fiixng INMP441 and SD card Reader logic... sorta
+
+The INMP441 at times is able to either record data, jst make a file, or not work at all. Im trying to pull back rfom another project i did with a amicrophone, and
+how a button is able to control when to record and not, and while there isnt much of a differtence, it actually recording or not isnt stable, but still works more than
+now. At this point, all thats really left is adding ESP_NOW and a speaker and Dac, but we managed to finally integrate AUDIO into this System!
+
+**Total time spent: 3hr**
+
+
+
 
 
