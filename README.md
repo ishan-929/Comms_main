@@ -1,6 +1,7 @@
 # 📌 A Comms Teleporter!
 
 > A Device that is able to let you decide what room in your house you want to send audio too, record your voice, and send it to the device in that room to play back out loud!
+> Note: This project is still in the making. ESP_NOW to another one of these devices, a MAX98357A and 3 Watt speaker are yet to be added. At its current stage, it is able to record audio and send it to the SD Card Module.
 
 ---
 
